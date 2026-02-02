@@ -3,29 +3,24 @@ on: [push, pull_request]
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.10'
+      - uses: actions/checkout@v3
 
       - name: Install dependencies
         run: |
           sudo apt update
-          sudo apt install -y git zip unzip openjdk-17-jdk autoconf libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev libtinfo5 cmake libffi-dev libssl-dev libbz2-dev libsqlite3-dev
-          pip install --upgrade pip
-          pip install buildozer cython==0.29.33
+          sudo apt install -y git zip unzip openjdk-17-jdk python3-pip autoconf libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev libtinfo5 cmake libffi-dev libssl-dev libbz2-dev
 
       - name: Build with Buildozer
-        run: |
-          yes | buildozer android debug
-        # El comando 'yes |' acepta automáticamente las licencias de Android SDK
+        uses: ArtemSerebriakov/buildozer-action@v1
+        with:
+          buildozer_version: master
+          command: buildozer android debug
+          repository_read_token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload APK
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v3
         with:
-          name: Mi_App_POS
+          name: package
           path: bin/*.apk
